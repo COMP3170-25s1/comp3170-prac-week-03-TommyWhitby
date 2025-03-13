@@ -10,8 +10,11 @@ import static org.lwjgl.opengl.GL11.glPolygonMode;
 import static org.lwjgl.opengl.GL15.glBindBuffer;
 
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
+
+import static comp3170.Math.TAU; // added this
 
 import comp3170.GLBuffers;
 import comp3170.Shader;
@@ -30,6 +33,16 @@ public class Scene {
 	private int colourBuffer;
 
 	private Shader shader;
+	
+	private Matrix4f modelMatrix = new Matrix4f();
+	private Matrix4f transMatrix = new Matrix4f();
+	private Matrix4f rotMatrix = new Matrix4f();
+	private Matrix4f scalMatrix = new Matrix4f();
+	
+	final private Vector3f OFFSET = new Vector3f(0.0f, 0.0f, 0.0f);
+	final private float MOVEMENT_SPEED = 1f;
+	final private float SCALE_RATE = 0.05f;
+	final private float ROTATION_RATE = TAU/5;
 
 	public Scene() {
 
@@ -77,14 +90,43 @@ public class Scene {
 			// @formatter:on
 
 		indexBuffer = GLBuffers.createIndexBuffer(indices);
-
+		
+//		Vector2f offset = new Vector2f(-0.65f, 0.65f); // change this is for moving model left right up down
+//		translationMatrix(offset.x, offset.y, transMatrix);
+//		
+//		float rotation = TAU/8; // change this for rotation model
+//		rotationMatrix(rotation, rotMatrix);
+//
+//		Vector2f scale = new Vector2f(0.5f, 0.5f); // change this to change scale of model
+//		scaleMatrix(scale.x, scale.y, scalMatrix);
+//		
+//		modelMatrix.mul(transMatrix).mul(rotMatrix).mul(scalMatrix);
+		
+		
+//		using JOML methods:
+//		Vector3f offset = new Vector3f(-0.65f, 0.65f, 0.0f);
+//		float scale = 0.1f;
+//		float rotation = TAU/8;
+		
+		modelMatrix.translate(OFFSET).scale(SCALE_RATE);
 	}
 
+	public void update(float deltaTime) {
+		
+		float movement = MOVEMENT_SPEED * deltaTime;
+		float rotation = ROTATION_RATE * deltaTime;
+
+		float scale = (float)Math.pow(SCALE_RATE, deltaTime);
+		modelMatrix.translate(0.02f, movement, 0.0f).rotateZ(rotation);
+	}
+	
 	public void draw() {
 		
 		shader.enable();
 		// set the attributes
 		shader.setAttribute("a_position", vertexBuffer);
+		shader.setUniform("u_modelMatrix", modelMatrix);
+		
 		shader.setAttribute("a_colour", colourBuffer);
 
 		// draw using index buffer
@@ -104,8 +146,9 @@ public class Scene {
 	 * @param dest Destination matrix to write into
 	 * @return
 	 */
-
+	
 	public static Matrix4f translationMatrix(float tx, float ty, Matrix4f dest) {
+	//public static Matrix4f translationMatrix(float tx, float ty, Matrix4f dest) {
 		// clear the matrix to the identity matrix
 		dest.identity();
 
@@ -134,7 +177,10 @@ public class Scene {
 
 	public static Matrix4f rotationMatrix(float angle, Matrix4f dest) {
 
-		// TODO: Your code here
+		dest.m00((float)( Math.cos(angle)));
+		dest.m01((float)( Math.sin(angle)));
+		dest.m10((float)( Math.sin(-angle)));
+		dest.m11((float)( Math.cos(angle)));
 
 		return dest;
 	}
@@ -151,7 +197,8 @@ public class Scene {
 
 	public static Matrix4f scaleMatrix(float sx, float sy, Matrix4f dest) {
 
-		// TODO: Your code here
+		dest.m00(sx);
+		dest.m11(sy);
 
 		return dest;
 	}
