@@ -40,7 +40,7 @@ public class Scene {
 	private Matrix4f scalMatrix = new Matrix4f();
 	
 	final private Vector3f OFFSET = new Vector3f(0.0f, 0.0f, 0.0f);
-	final private float MOVEMENT_SPEED = 1f;
+	final private float MOVEMENT_SPEED = 5f;
 	final private float SCALE_RATE = 0.05f;
 	final private float ROTATION_RATE = TAU/5;
 
@@ -117,7 +117,7 @@ public class Scene {
 		float rotation = ROTATION_RATE * deltaTime;
 
 		float scale = (float)Math.pow(SCALE_RATE, deltaTime);
-		modelMatrix.translate(0.02f, movement, 0.0f).rotateZ(rotation);
+		modelMatrix.translate(0.0f, movement, 0.0f).rotateZ(rotation);
 	}
 	
 	public void draw() {
